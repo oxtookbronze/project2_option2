@@ -87,8 +87,20 @@ TickFct_OnOff_Ctrl() {
         Submit your code so TAs can see it; you'll get 0 of 1 points but that is irrelevant.
 
         To ensure you are starting early and developing incrementally, you should submit your code AFTER EVERY 30 MINUTES OF WORK or more often if desired. Just copy-paste, click Submit, and then keep working, so we can see a history of your work, including dates/times and the code itself.
-        /*
-
+	*/
+        fanAcceleration = calcAct;
+        fanForce = fanMass * fanAcceleration;
+        ballAcceleration = (fanForce / ballMass) - gravity;
+        ballVelocity = ballVelocity + (ballAcceleration *dt);
+        ballPosition = ballPosition + (ballVelocity * dt);
+        if(ball.pos < ballMin){
+            ballVelocity = 0;
+            ballPosition = ballMin;
+        }
+        if(ball.pos > ballMax){
+            ball.v = 0;
+            ball.pos = ballMax;
+        }
          break;
       default: // ADD default behaviour below
       break;
