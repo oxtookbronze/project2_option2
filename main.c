@@ -11,9 +11,9 @@ short Deriv;
 short Integ;
 short calcAct;
 short ActualPrev;
-float Kp = ; 
-short Ki = 0;
-short Kd = 0;
+short Kp = 0.05; 
+short Ki = 0.001;
+short Kd = 2.5;
 
 unsigned char SM1_Clk;
 void TimerISR() {
@@ -50,11 +50,12 @@ TickFct_OnOff_Ctrl() {
 
          // Calculate proportional error
          Error = Desired - Actual;
-
+        printf("Desired: %f Actual: %f",Desired,Actual);
          // Calculate integral 
          Integ += Error;
          if(Integ > integMax)Integ=integMax;
          if(Integ < integMin)Integ=integMin;
+        printf("Integral: %f\n",Integ);
 
          // Calculate derivative
          Deriv = Actual - ActualPrev;
