@@ -1,3 +1,4 @@
+#include "RIMS.h"
 
 /*Define user variables for this state machine here. No functions; make them global.*/
 #define Actuator B
@@ -101,9 +102,9 @@ TickFct_OnOff_Ctrl() {
             ballVelocity = 0;
             ballPosition = ballMin;
         }
-        if(ball.pos > ballMax){
-            ball.v = 0;
-            ball.pos = ballMax;
+        if(ballPosition > ballMax){
+            ballVelocity = 0;
+            ballPosition = ballMax;
         }
          break;
       default: // ADD default behaviour below
