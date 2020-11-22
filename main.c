@@ -1,6 +1,7 @@
 #include "RIMS.h"
 /*Define user variables for this state machine here. No functions; make them global.*/
 #define Actuator B
+#define period 200
 int integMax = 1000;
 int integMin = -1000;
 int Desired;
@@ -14,7 +15,15 @@ double Kp = 0.05;
 double Ki = 0.001;
 double Kd = 2.5;
 double baseSpeed;
-
+double ballPosition;
+double ballVelocity;
+double ballAcceleration;
+double ballMass = 0.027;
+double fanForce = 0;
+double fanMass = 0;
+double fanAcceleration = 0;
+double gravity = 9.8;
+double dt = period / 1000;
 
 unsigned char SM1_Clk;
 void TimerISR() {
@@ -77,7 +86,7 @@ TickFct_OnOff_Ctrl() {
 
 int main() {
 
-   const unsigned int periodOnOff_Ctrl = 200;
+   const unsigned int periodOnOff_Ctrl = period;
    TimerSet(periodOnOff_Ctrl);
    TimerOn();
    
