@@ -1,4 +1,4 @@
-#include "RIMS.h"
+
 /*Define user variables for this state machine here. No functions; make them global.*/
 #define Actuator B
 #define period 200
@@ -23,6 +23,8 @@ double fanForce = 0;
 double fanMass = 0;
 double fanAcceleration = 0;
 double gravity = 9.8;
+int ballMax = 200;
+int ballMin = 0;
 double dt = period / 1000;
 
 unsigned char SM1_Clk;
@@ -88,12 +90,14 @@ TickFct_OnOff_Ctrl() {
 
         To ensure you are starting early and developing incrementally, you should submit your code AFTER EVERY 30 MINUTES OF WORK or more often if desired. Just copy-paste, click Submit, and then keep working, so we can see a history of your work, including dates/times and the code itself.
 	*/
+        ballMax = 200;
+        ballMin = 0;
         fanAcceleration = calcAct;
         fanForce = fanMass * fanAcceleration;
         ballAcceleration = (fanForce / ballMass) - gravity;
         ballVelocity = ballVelocity + (ballAcceleration *dt);
         ballPosition = ballPosition + (ballVelocity * dt);
-        if(ball.pos < ballMin){
+        if(ballPosition < ballMin){
             ballVelocity = 0;
             ballPosition = ballMin;
         }
