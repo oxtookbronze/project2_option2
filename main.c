@@ -1,19 +1,20 @@
-#include "rims.h"
-
+#include "RIMS.h"
 /*Define user variables for this state machine here. No functions; make them global.*/
 #define Actuator B
-short integMax = 5;
-short integMin = -5;
-short Desired;
-short Actual;
-short Error;
-short Deriv;
-short Integ;
-short calcAct;
-short ActualPrev;
-short Kp = 0.05; 
-short Ki = 0.001;
-short Kd = 2.5;
+int integMax = 1000;
+int integMin = -1000;
+int Desired;
+int Actual;
+int Error;
+double Deriv;
+int Integ;
+double calcAct;
+double ActualPrev;
+double Kp = 0.05; 
+double Ki = 0.001;
+double Kd = 2.5;
+double baseSpeed;
+
 
 unsigned char SM1_Clk;
 void TimerISR() {
@@ -45,17 +46,18 @@ TickFct_OnOff_Ctrl() {
          Integ = 0;
          break;
       case SM1_Ctrl:
+         //desired actual:
          Desired = (A & 0x0F);
          Actual = ((A & 0xF0)>>4);
 
          // Calculate proportional error
          Error = Desired - Actual;
-        printf("Desired: %f Actual: %f",Desired,Actual);
+        printf("Desired: %d Actual: %d",Desired,Actual);
          // Calculate integral 
          Integ += Error;
          if(Integ > integMax)Integ=integMax;
          if(Integ < integMin)Integ=integMin;
-        printf("Integral: %f\n",Integ);
+        printf(" Integral: %d\n",Integ);
 
          // Calculate derivative
          Deriv = Actual - ActualPrev;
