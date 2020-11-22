@@ -1,5 +1,6 @@
 #include "RIMS.h"
 
+
 /*Define user variables for this state machine here. No functions; make them global.*/
 #define Actuator B
 #define period 200
@@ -16,7 +17,7 @@ double Kp = 0.05;
 double Ki = 0.001;
 double Kd = 2.5;
 double baseSpeed;
-double ballPosition;
+int ballPosition = 0;
 double ballVelocity;
 double ballAcceleration;
 double ballMass = 0.027;
@@ -64,12 +65,11 @@ TickFct_OnOff_Ctrl() {
 
          // Calculate proportional error
          Error = Desired - Actual;
-        printf("Desired: %d Actual: %d",Desired,Actual);
          // Calculate integral 
          Integ += Error;
          if(Integ > integMax)Integ=integMax;
          if(Integ < integMin)Integ=integMin;
-        printf(" Integral: %d\n",Integ);
+    
 
          // Calculate derivative
          Deriv = Actual - ActualPrev;
@@ -106,6 +106,8 @@ TickFct_OnOff_Ctrl() {
             ballVelocity = 0;
             ballPosition = ballMax;
         }
+        // We just finished adding the ballPosition, we want to display those
+        printf("Ball Position: %d\n",ballPosition);
          break;
       default: // ADD default behaviour below
       break;
