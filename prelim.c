@@ -4,7 +4,7 @@
 
 unsigned short A7,A6,A5,A4,A3,A2,A1,A0; // Note: Setting or reading A or B as a group, as in B = 0, isn't supported
 unsigned short B7,B6,B5,B4,B3,B2,B1,B0;
-char inputValues[100][8]; A// Inputs A7..A0 for up to 100 ticks.
+char inputValues[100][8]; // Inputs A7..A0 for up to 100 ticks.
 int currTick = 0;
 
 void SetAInputs() {
