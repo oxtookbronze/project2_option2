@@ -60,8 +60,7 @@ TickFct_OnOff_Ctrl() {
          break;
       case SM1_Ctrl:
          //desired actual:
-         Desired = (A & 0x0F);
-         Actual = ((A & 0xF0)>>4);
+         B0 = 1; B1 = 1;
 
          // Calculate proportional error
          Error = Desired - Actual;
@@ -107,7 +106,7 @@ TickFct_OnOff_Ctrl() {
             ballPosition = ballMax;
         }
         // We just finished adding the ballPosition, we want to display those
-        printf("Ball Position: %d\n",ballPosition);
+        //printf("Ball Position: %d\n",ballPosition);
          break;
       default: // ADD default behaviour below
       break;
