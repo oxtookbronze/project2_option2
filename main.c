@@ -1,16 +1,10 @@
 #include "RIMS.h"
 
 
+
 /*Define user variables for this state machine here. No functions; make them global.*/
-
-
-unsigned char SM1_Clk;
-void TimerISR() {
-   SM1_Clk = 1;
-}
 #define Actuator B
 #define period 200
-enum SM1_States { SM1_NONAME, SM1_Init, SM1_Ctrl } SM1_State;
 int integMax = 1000;
 int integMin = -1000;
 int Desired;
@@ -35,6 +29,14 @@ double gravity = 9.8;
 int ballMax = 200;
 int ballMin = 0;
 double dt = period / 1000;
+
+unsigned char SM1_Clk;
+void TimerISR() {
+   SM1_Clk = 1;
+}
+
+enum SM1_States { SM1_NONAME, SM1_Init, SM1_Ctrl } SM1_State;
+
 TickFct_OnOff_Ctrl() {
    switch(SM1_State) { // Transitions
       case -1:
@@ -59,8 +61,7 @@ TickFct_OnOff_Ctrl() {
          break;
       case SM1_Ctrl:
          //desired actual:
-         Desired = (A & 0x0F);
-         Actual = ((A & 0xF0)>>4);
+         
 
          // Calculate proportional error
          Error = Desired - Actual;
@@ -76,10 +77,10 @@ TickFct_OnOff_Ctrl() {
          // Calculate actuator output
          calcAct = Kp*Error + Ki*Integ - Kd*Deriv;
          if(calcAct < 0) calcAct = 0;
-
+         while (calcAct < 1) {calcAct *=10;}
+         
          Actuator = calcAct;
          ActualPrev = Actual;
-
         ballMax = 200;
         ballMin = 0;
         fanAcceleration = calcAct;
