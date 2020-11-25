@@ -1,35 +1,35 @@
 #include "RIMS.h"
 
-
+/*Define user variables for this state machine here. No functions; make them global.*
 
 /*Define user variables for this state machine here. No functions; make them global.*/
 #define Actuator B
-#define period 200
-int integMax = 1000;
-int integMin = -1000;
+int integMax = 5;
+int integMin = -5;
+int integCount = 0;
 int Desired;
 int Actual;
 int Error;
-double Deriv;
+int Deriv;
 int Integ;
-double calcAct;
-double ActualPrev;
-double Kp = 0.05; 
-double Ki = 0.001;
-double Kd = 2.5;
-double baseSpeed;
-int ballPosition = 0;
-double ballVelocity;
-double ballAcceleration;
-double ballMass = 0.027;
-double fanForce = 0;
-double fanMass = 0;
-double fanAcceleration = 0;
-double gravity = 9.8;
-int ballMax = 200;
-int ballMin = 0;
-double dt = period / 1000;
-
+int calcAct;
+int ActualPrev;
+int Kp = 8; 
+int Ki = 1;
+int Kd = 10;
+int manualControl = 10;
+struct Ball{
+   int pos;
+   int vel;
+   int acc;
+   int mass;
+   }ball;
+struct Fan{
+   int force;
+   int acc;
+   int mass;
+   
+} fan;
 unsigned char SM1_Clk;
 void TimerISR() {
    SM1_Clk = 1;
@@ -58,46 +58,97 @@ TickFct_OnOff_Ctrl() {
          Actuator = 0;
          ActualPrev = 0;
          Integ = 0;
+         ball.pos = 0;
+         fan.mass = 5;
+         ball.mass = 3;
+         manualControl = 10;
+
+         
          break;
       case SM1_Ctrl:
-         //desired actual:
          
+         Desired = 100;
 
+         //tick physics
+
+         if (A0){
+            if(A6 && !A7){
+               manualControl +=3;
+            }
+            if(A7 && !A6){
+               manualControl -=3;
+            }
+         }
+         if(A1){
+            if(ball.pos < 25){
+               B = 128;
+            }
+            else if(ball.pos < 50){
+               B = 192;
+            }
+            else if(ball.pos < 70){
+               B = 224;
+            }
+            else if(ball.pos < 110){
+               B = 240;
+            }
+            else if(ball.pos < 140){
+               B = 248;
+            }
+            else if(ball.pos < 170){
+               B = 252;
+            }
+            else if(ball.pos < 200){
+               B = 254;
+            }
+            else{
+               B = 255;
+            }
+         }
+         else{
+            B = ball.pos % 1000;
+         }
+         printf("fan.acc: %d fan.force: %d ball.acc: %d ball.vel: %d ball.pos: %d\n",fan.acc,fan.force,ball.acc,ball.vel,ball.pos);
+         fan.acc = (A0)? manualControl: calcAct;
+         if(fan.acc > 10) fan.acc = 10;
+         fan.force = fan.mass * fan.acc;
+         ball.acc = (fan.force / ball.mass) - 3;
+         ball.vel+=ball.acc;
+         ball.pos+=ball.vel;
+         
+         if(ball.pos > 200){
+            ball.pos = 200;
+            ball.vel = -10;
+         }
+         if(ball.pos <=0){
+            ball.pos = 0;
+            ball.vel = 10;
+         }
+
+         //printf("%d ",ball.pos);
          // Calculate proportional error
-         Error = Desired - Actual;
-         // Calculate integral 
+         Error = (Desired - ball.pos);
+         printf("%d %d\n",Desired, ball.pos);
+
+         // Calculate integral
          Integ += Error;
-         if(Integ > integMax)Integ=integMax;
-         if(Integ < integMin)Integ=integMin;
-    
+         if(Integ > integMax) Integ = integMax;
+         if(Integ < integMin) Integ = integMin;
+      
 
          // Calculate derivative
-         Deriv = Actual - ActualPrev;
+         Deriv = calcAct - ActualPrev;
 
          // Calculate actuator output
-         calcAct = Kp*Error + Ki*Integ - Kd*Deriv;
+         calcAct = Kp*Error + Ki*Integ -Kd*Deriv;
          if(calcAct < 0) calcAct = 0;
-         while (calcAct < 1) {calcAct *=10;}
+         if(calcAct > 100) calcAct = 100;
+         printf("%d\n",calcAct);
          
-         Actuator = calcAct;
-         ActualPrev = Actual;
-        ballMax = 200;
-        ballMin = 0;
-        fanAcceleration = calcAct;
-        fanForce = fanMass * fanAcceleration;
-        ballAcceleration = (fanForce / ballMass) - gravity;
-        ballVelocity = ballVelocity + (ballAcceleration *dt);
-        ballPosition = ballPosition + (ballVelocity * dt);
-        if(ballPosition < ballMin){
-            ballVelocity = 0;
-            ballPosition = ballMin;
-        }
-        if(ballPosition > ballMax){
-            ballVelocity = 0;
-            ballPosition = ballMax;
-        }
-        // We just finished adding the ballPosition, we want to display those
-        printf("Ball Position: %d\n",ballPosition);
+
+        
+         ActualPrev = calcAct;
+         
          break;
       default: // ADD default behaviour below
       break;
@@ -107,7 +158,7 @@ TickFct_OnOff_Ctrl() {
 
 int main() {
 
-   const unsigned int periodOnOff_Ctrl = period;
+   const unsigned int periodOnOff_Ctrl = 500;
    TimerSet(periodOnOff_Ctrl);
    TimerOn();
    
